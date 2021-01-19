@@ -5,6 +5,7 @@ import json
 import random
 from replit import db
 from keep_alive import keep_alive
+import datetime
 
 client = discord.Client()
 
@@ -62,12 +63,33 @@ async def on_message(message):
     if any(word in msg for word in sad_words):
       await message.channel.send(random.choice(options))
 
-  if msg.startswith("$new"):
+  if msg.startswith("$rendezvous"):
+    rdv = msg.split("$rendezvous ", 1)[1]
+    try:
+      format = "%d/%m/%Y-%H:%M:%S"
+      datetime.datetime.strptime(rdv, format)
+      await message.channel.send("This is the correct date string format.")
+      dateheure = rdv.split("-")
+      jour = dateheure[0]
+      heure = dateheure[1]
+      jour = jour.split("/")
+      jour = jour[2] + "/" + jour[1] + "/" + jour[0]
+      appointment = jour + "-" + heure
+      await message.channel.send("!cal edit")
+      await message.channel.send("!event create")
+      await message.channel.send("!event start " + appointment)
+      await message.channel.send("!event confirm")
+
+      await message.channel.send("Rendez vous en place pour le " + rdv)
+    except ValueError:
+      await message.channel.send("This is the incorrect date string format. It should be YYYY-MM-DD")
+
+  elif msg.startswith("$new"):
     encouraging_message = msg.split("$new ", 1)[1]
     update_encouragements(encouraging_message)
     await message.channel.send("New encouraging message added.")
 
-  if msg.startswith("$del"):
+  elif msg.startswith("$del"):
     encouragements = []
     if "encouragements" in db.keys():
       index = int(msg.split("$del",1)[1])
@@ -75,13 +97,13 @@ async def on_message(message):
       encouragements = db ["encouragements"]
     await message.channel.send(encouragements)
 
-  if msg.startswith("$list"):
+  elif msg.startswith("$list"):
     encouragements = []
     if "encouragements" in db.keys():
       encouragements = db["encouragements"]
     await message.channel.send(encouragements)
 
-  if msg.startswith("$responding"):
+  elif msg.startswith("$responding"):
     value = msg.split("$responding ",1)[1]
 
     if value.lower() == "true":
