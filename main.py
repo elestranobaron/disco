@@ -6,6 +6,35 @@ import random
 from replit import db
 from keep_alive import keep_alive
 import datetime
+# importing the requests library 
+import requests 
+  
+# api-endpoint 
+URL = "https://api.discalbot.com/v2"
+  
+# location given here 
+URL += "/events/create"
+  
+# defining a params dict for the parameters to be sent to the API 
+PARAMS = {
+				"guild_id": 375357265198317579,
+				"calendar_number": 1,
+				"event_id": "e7gqkup5l8",
+				"epoch_start": 1521732600000,
+				"epoch_end": 1521732600000,
+				"summary": "Weekly study group",
+				"description": "Time to study!",
+				"location": "Building A, Room 205",
+				"is_parent": False,
+				"color": "NONE",
+				"recur": False,#True,
+				#"recurrence": {
+				#	"frequency": "WEEKLY",
+				#	"count": -1,
+				#	"interval": 1
+				#},
+				"image": "https://imgur.com/totallyARealLink.png"
+				}
 
 client = discord.Client()
 
@@ -74,11 +103,21 @@ async def on_message(message):
       heure = dateheure[1]
       jour = jour.split("/")
       jour = jour[2] + "/" + jour[1] + "/" + jour[0]
-      appointment = jour + "-" + heure
-      await message.channel.send("!cal edit")
-      await message.channel.send("!event create")
-      await message.channel.send("!event start " + appointment)
-      await message.channel.send("!event confirm")
+      ## appointment = jour + "-" + heure
+      # sending get request and saving the response as response object 
+      r = requests.post(URL, data = PARAMS) 
+      # extracting data in json format 
+      data = r.json()
+      # extracting latitude, longitude and formatted address  
+      # of the first matching location 
+      ## response_id = data['id'] 
+      response = data['message']
+      # printing the output 
+      await message.channel.send(response)
+      #await message.channel.send("!cal edit")
+      #await message.channel.send("!event create")
+      #await message.channel.send("!event start " + appointment)
+      #await message.channel.send("!event confirm")
 
       await message.channel.send("Rendez vous en place pour le " + rdv)
     except ValueError:
